@@ -1,0 +1,4 @@
+<div *ngIf="!(gameOver$ | async); else gameOverTemplate">turn of: {{turnOf$ | async}}</div>
+<ng-template #gameOverTemplate>
+  <div class="game-over">Game Over, {{player}} wins</div>
+</ng-template>

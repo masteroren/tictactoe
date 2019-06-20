@@ -1,0 +1,14 @@
+<form [formGroup]="form" class="players">
+  <label>
+    <span>(X) Player 1</span>
+    <input formControlName="playerA">
+  </label>
+  <label>
+    <span>(O) Player 2</span>
+    <input formControlName="playerB">
+  </label>
+</form>
+<div class="actions">
+  <button (click)="onClearBoard()">Clear Board</button>
+  <button [disabled]="this.form.invalid || (gameEnabled$ | async)" (click)="onStartGame()">Start Game</button>
+</div>

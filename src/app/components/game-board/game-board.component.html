@@ -1,0 +1,11 @@
+<div class="game-board">
+  <div class="row" *ngFor="let row of gameButtons">
+    <div *ngFor="let gameBtn of row">
+      <button
+        [disabled]="gameOver || !(gameEnabled$ | async)"
+        class="game-button"
+        [ngClass]="{win: boardConfig[gameBtn]?.win}"
+        (click)="turn.emit(gameBtn)">{{boardConfig[gameBtn]?.value}}</button>
+    </div>
+  </div>
+</div>
