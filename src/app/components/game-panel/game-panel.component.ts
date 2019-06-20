@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {GameState, selectGameEnabled} from '../../store';
 import {select, Store} from '@ngrx/store';
@@ -12,8 +12,6 @@ import {Observable} from 'rxjs';
 })
 export class GamePanelComponent implements OnInit {
 
-  @Output() clearBoard = new EventEmitter();
-  @Output() startGame = new EventEmitter();
   public form: FormGroup;
   public gameEnabled$: Observable<boolean>;
 
@@ -37,12 +35,10 @@ export class GamePanelComponent implements OnInit {
       gameEnabled: true,
       players: this.form.getRawValue(),
     }));
-    this.startGame.emit();
   }
 
   onClearBoard() {
     this.form.reset();
     this.store.dispatch(new ClearBoard());
-    this.clearBoard.emit();
   }
 }

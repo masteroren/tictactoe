@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ActionsSubject, select, Store} from '@ngrx/store';
-import {GameState, selectGameEnabled, selectGameOver} from './store';
+import {GameState, selectGameOver, selectTurnOf} from './store';
 import {actionsTypes, GameOver, TurnOf} from './store/actions';
 import {Observable} from 'rxjs';
+import {take} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -24,10 +25,9 @@ export class AppComponent implements OnInit {
     9: {value: '', winOptions: [[1, 5], [3, 6], [7, 8]]},
   };
   public gameButtons = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
-  public turnOf = 'X';
   public gameOver$: Observable<boolean>;
 
-  constructor(private store: Store<GameState>) {
+  constructor(private store: Store<GameState>, private actionsSubject: ActionsSubject) {
   }
 
   ngOnInit(): void {
@@ -35,16 +35,33 @@ export class AppComponent implements OnInit {
       .pipe(
         select(selectGameOver),
       );
+
+    this.actionsSubject
+      .subscribe(action => {
+        if (action.type === actionsTypes.CLEAR_BOARD) {
+          for (const key of Object.keys(this.boardConfig)) {
+            this.boardConfig[key].value = '';
+            this.boardConfig[key].win = false;
+          }
+        }
+      });
   }
 
   onTurn(gameBtn) {
     if (this.boardConfig[gameBtn].value === '') {
-      this.boardConfig[gameBtn].value = this.turnOf;
-      this.checkWIn(gameBtn);
+      this.store
+        .pipe(
+          select(selectTurnOf),
+          take(1),
+        )
+        .subscribe(turnOf => {
+          this.boardConfig[gameBtn].value = turnOf;
+          this.checkWIn(gameBtn, turnOf);
+        });
     }
   }
 
-  checkWIn(gameBtn) {
+  checkWIn(gameBtn, turnOf) {
     if (this.boardConfig[gameBtn].winOptions) {
       let hasWin = false;
       this.boardConfig[gameBtn].winOptions.every(winOption => {
@@ -61,18 +78,9 @@ export class AppComponent implements OnInit {
       if (hasWin) {
         this.store.dispatch(new GameOver({gameOver: true}));
       } else {
-        this.turnOf = this.turnOf === 'X' ? 'O' : 'X';
-        this.store.dispatch(new TurnOf({turnOf: this.turnOf}));
+        const nextTurnOf = turnOf === 'X' ? 'O' : 'X';
+        this.store.dispatch(new TurnOf({turnOf: nextTurnOf}));
       }
-    }
-  }
-
-  onClearBoard() {
-    localStorage.removeItem('game');
-    localStorage.removeItem('turnOf');
-    for (const key of Object.keys(this.boardConfig)) {
-      this.boardConfig[key].value = '';
-      this.boardConfig[key].win = false;
     }
   }
 }
