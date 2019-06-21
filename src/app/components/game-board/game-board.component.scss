@@ -24,9 +24,16 @@
 
         &.win {
           background-color: red;
+          animation: 2s linear slidein;
+          animation-iteration-count: 5;
         }
 
       }
     }
   }
+}
+
+@keyframes slidein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
